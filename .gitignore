@@ -1,0 +1,15 @@
+Binaries/*
+DerivedDataCache/*
+Intermediate/*
+Saved/*
+.vscode
+.vs
+*.bin
+*.vC.db
+*.opensdf
+*.opendb
+*.sdf
+*.sln
+*.suo
+*.xcdeproj
+*.xcworkspace
