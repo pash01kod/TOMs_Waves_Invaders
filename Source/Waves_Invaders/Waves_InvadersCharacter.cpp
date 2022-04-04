@@ -279,6 +279,11 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
+void AWaves_InvadersCharacter::ReloadWepon()
+{
+
+}
+
 void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
