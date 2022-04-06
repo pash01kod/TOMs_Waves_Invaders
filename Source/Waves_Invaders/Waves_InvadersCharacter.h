@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "WeaponSysten.h"
 #include "Waves_InvadersCharacter.generated.h"
+
 
 class UInputComponent;
 class USkeletalMeshComponent;
@@ -30,14 +32,6 @@ class AWaves_InvadersCharacter : public ACharacter
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	USceneComponent* FP_MuzzleLocation;
-
-	///** Gun mesh: VR view (attached to the VR controller directly, no arm, just the actual gun) */
-	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	//USkeletalMeshComponent* VR_Gun;
-
-	///** Location on VR gun mesh where projectiles should spawn. */
-	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	//USceneComponent* VR_MuzzleLocation;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -86,13 +80,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	AWeaponSysten* weapon;
+
 protected:
 	
 	/** Fires a projectile. */
 	void OnFire();
-
-	/** Resets HMD orientation and position in VR. */
-	/*void OnResetVR();*/
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -106,11 +100,12 @@ protected:
 	 */
 	void TurnAtRate(float Rate);
 
-	/**
-	 * Called via input to turn look up/down at a given rate.
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
+	void ReloadWepon();
+
 	void LookUpAtRate(float Rate);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void TriggerOutOFAmmoPopUp();
 
 	struct TouchData
 	{
