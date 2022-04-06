@@ -104,6 +104,9 @@ protected:
 
 	void LookUpAtRate(float Rate);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void TriggerOutOFAmmoPopUp();
+
 	struct TouchData
 	{
 		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}
