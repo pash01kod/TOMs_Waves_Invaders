@@ -255,10 +255,7 @@ void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::TriggerOutOFAmmoPopUp()
-{
 
-}
 
 bool AWaves_InvadersCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerInputComponent)
 {
