@@ -100,7 +100,7 @@ protected:
 	 */
 	void TurnAtRate(float Rate);
 
-	void ReloadWepon();
+	void ReloadWeapon();
 
 	void LookUpAtRate(float Rate);
 
