@@ -6,6 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "WeaponSysten.generated.h"
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	E_Rifle		UMETA(DisplayName = "5.56MM"),
+	E_9MM		UMETA(DisplayName = "9MM"),
+	E_BigGun	UMETA(DisplayName = "BIGGUN")
+};
+
 UCLASS()
 class WAVES_INVADERS_API AWeaponSysten : public AActor
 {
@@ -29,6 +37,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float reloadTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponType weaponType;
 
 protected:
 	// Called when the game starts or when spawned

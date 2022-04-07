@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "WeaponSysten.h"
+#include "Ammo.h"
 #include "Waves_InvadersCharacter.generated.h"
 
 
@@ -81,6 +82,15 @@ public:
 	uint8 bUsingMotionControllers : 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	int rifleAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	int ppAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	int bigGunAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	AWeaponSysten* weapon;
 
 protected:
@@ -100,9 +110,16 @@ protected:
 	 */
 	void TurnAtRate(float Rate);
 
-	void ReloadWeapon();
+	void ManualReload();
+
+	void ReloadWeapon(EWeaponType _weaponType);
+
+	int CalculateAmmo(int _ammoAmount);
 
 	void LookUpAtRate(float Rate);
+
+	UFUNCTION(BlueprintCallable)
+	void AddAmmo(EAmmoType _ammoType, int _ammoAmount);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
 	void TriggerOutOFAmmoPopUp();

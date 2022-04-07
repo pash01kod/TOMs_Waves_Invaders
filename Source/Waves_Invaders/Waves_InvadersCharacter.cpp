@@ -57,6 +57,10 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	 /*Default offset from the character location for projectiles to spawn*/
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 	weapon = nullptr;
+
+	rifleAmmo = 30;
+	ppAmmo = 12;
+	bigGunAmmo = 3;
 	
 }
 
@@ -84,7 +88,7 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::OnFire);
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ReloadWeapon);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ManualReload);
 
 	// Enable touchscreen input
 	/*EnableTouchscreenMovement(PlayerInputComponent);
@@ -131,13 +135,9 @@ void AWaves_InvadersCharacter::OnFire()
 
 					weapon->cliplAmmo -= 1;
 				}
-				else if (weapon->totalAmmo > 0)
+				else  
 				{
-					ReloadWeapon();
-				}
-				else
-				{
-					TriggerOutOFAmmoPopUp();
+					ReloadWeapon(weapon->weaponType);
 				}
 			}
 		}
@@ -253,30 +253,86 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::ReloadWeapon()
+void AWaves_InvadersCharacter::ManualReload()
+{
+	ReloadWeapon(weapon->weaponType);
+}
+
+void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
 {
 	if (weapon)
 	{
+		switch (_weaponType)
+		{
+		case EWeaponType::E_Rifle:
+			rifleAmmo = CalculateAmmo(rifleAmmo);
+			break;
+
+		case EWeaponType::E_9MM:
+			ppAmmo = CalculateAmmo(ppAmmo);
+			break;
+
+		case EWeaponType::E_BigGun:
+			bigGunAmmo = CalculateAmmo(bigGunAmmo);
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
+int AWaves_InvadersCharacter::CalculateAmmo(int _ammoAmount)
+{
+	if(_ammoAmount > 0)
+	{
 		if (weapon->cliplAmmo != weapon->maxClipAmmo)
 		{
-			if (weapon->totalAmmo - (weapon->maxClipAmmo - weapon->cliplAmmo) >= 0)
+			if (_ammoAmount - (weapon->maxClipAmmo - weapon->cliplAmmo) >= 0)
 			{
-				weapon->totalAmmo -= (weapon->maxClipAmmo - weapon->cliplAmmo);
+				_ammoAmount -= (weapon->maxClipAmmo - weapon->cliplAmmo);
 				weapon->cliplAmmo = weapon->maxClipAmmo;
 			}
 			else
 			{
-				weapon->cliplAmmo += weapon->totalAmmo;
-				weapon->totalAmmo = 0;
+				weapon->cliplAmmo += _ammoAmount;
+				_ammoAmount = 0;
 			}
 		}
 	}
+	else
+	{
+		TriggerOutOFAmmoPopUp();
+	}
+
+	return _ammoAmount;
 }
 
 void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AWaves_InvadersCharacter::AddAmmo(EAmmoType _ammoType, int _ammoAmount)
+{
+	switch (_ammoType)
+	{
+	case EAmmoType::E_Rifle:
+		rifleAmmo += _ammoAmount;
+		break;
+	
+	case EAmmoType::E_9MM:
+		ppAmmo += _ammoAmount;
+		break;
+
+	case EAmmoType::E_BigGun:
+		bigGunAmmo += _ammoAmount;
+		break;
+
+	default:
+		break;
+	}
 }
 
 
