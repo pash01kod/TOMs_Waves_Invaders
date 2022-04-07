@@ -84,7 +84,7 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::OnFire);
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ReloadWepon);
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ReloadWeapon);
 
 	// Enable touchscreen input
 	/*EnableTouchscreenMovement(PlayerInputComponent);
@@ -112,24 +112,33 @@ void AWaves_InvadersCharacter::OnFire()
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
-			if (bUsingMotionControllers)
+			if(weapon)
 			{
-				/*const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();*/
-				/*const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();*/
-				/*World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);*/
-			}
-			else
-			{
-				const FRotator SpawnRotation = GetControlRotation();
-				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+				if(weapon->cliplAmmo > 0)
+				{
+					if (bUsingMotionControllers)
+					{
+				
+					}
+					else
+					{
+						const FRotator SpawnRotation = GetControlRotation();
+						const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+						FActorSpawnParameters ActorSpawnParams;
+						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+						World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+					}
 
-				//Set Spawn Collision Handling Override
-				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-				// spawn the projectile at the muzzle
-				World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+					weapon->cliplAmmo -= 1;
+				}
+				else if (weapon->totalAmmo > 0)
+				{
+					ReloadWeapon();
+				}
+				else
+				{
+					TriggerOutOFAmmoPopUp();
+				}
 			}
 		}
 	}
@@ -244,9 +253,24 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::ReloadWepon()
+void AWaves_InvadersCharacter::ReloadWeapon()
 {
-
+	if (weapon)
+	{
+		if (weapon->cliplAmmo != weapon->maxClipAmmo)
+		{
+			if (weapon->totalAmmo - (weapon->maxClipAmmo - weapon->cliplAmmo) >= 0)
+			{
+				weapon->totalAmmo -= (weapon->maxClipAmmo - weapon->cliplAmmo);
+				weapon->cliplAmmo = weapon->maxClipAmmo;
+			}
+			else
+			{
+				weapon->cliplAmmo += weapon->totalAmmo;
+				weapon->totalAmmo = 0;
+			}
+		}
+	}
 }
 
 void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
@@ -255,10 +279,7 @@ void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::TriggerOutOFAmmoPopUp()
-{
 
-}
 
 bool AWaves_InvadersCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerInputComponent)
 {
