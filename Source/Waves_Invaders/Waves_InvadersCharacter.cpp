@@ -56,12 +56,12 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 
 	 /*Default offset from the character location for projectiles to spawn*/
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
-	weapon = nullptr;
+	
 
 	rifleAmmo = 30;
 	ppAmmo = 12;
 	bigGunAmmo = 3;
-	
+	weaponIndex = 0;
 }
 
 void AWaves_InvadersCharacter::BeginPlay()
@@ -89,7 +89,7 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::OnFire);
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ManualReload);
-
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::SwitchToNextWeapon);
 	// Enable touchscreen input
 	/*EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -116,9 +116,9 @@ void AWaves_InvadersCharacter::OnFire()
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
 		{
-			if(weapon)
+			if(weapon[weaponIndex])
 			{
-				if(weapon->cliplAmmo > 0)
+				if(weapon[weaponIndex]->cliplAmmo > 0)
 				{
 					if (bUsingMotionControllers)
 					{
@@ -133,11 +133,11 @@ void AWaves_InvadersCharacter::OnFire()
 						World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 					}
 
-					weapon->cliplAmmo -= 1;
+					weapon[weaponIndex]->cliplAmmo -= 1;
 				}
 				else  
 				{
-					ReloadWeapon(weapon->weaponType);
+					ReloadWeapon(weapon[weaponIndex]->weaponType);
 				}
 			}
 		}
@@ -255,12 +255,12 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 
 void AWaves_InvadersCharacter::ManualReload()
 {
-	ReloadWeapon(weapon->weaponType);
+	ReloadWeapon(weapon[weaponIndex]->weaponType);
 }
 
 void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
 {
-	if (weapon)
+	if (weapon[weaponIndex])
 	{
 		switch (_weaponType)
 		{
@@ -286,16 +286,16 @@ int AWaves_InvadersCharacter::CalculateAmmo(int _ammoAmount)
 {
 	if(_ammoAmount > 0)
 	{
-		if (weapon->cliplAmmo != weapon->maxClipAmmo)
+		if (weapon[weaponIndex]->cliplAmmo != weapon[weaponIndex]->maxClipAmmo)
 		{
-			if (_ammoAmount - (weapon->maxClipAmmo - weapon->cliplAmmo) >= 0)
+			if (_ammoAmount - (weapon[weaponIndex]->maxClipAmmo - weapon[weaponIndex]->cliplAmmo) >= 0)
 			{
-				_ammoAmount -= (weapon->maxClipAmmo - weapon->cliplAmmo);
-				weapon->cliplAmmo = weapon->maxClipAmmo;
+				_ammoAmount -= (weapon[weaponIndex]->maxClipAmmo - weapon[weaponIndex]->cliplAmmo);
+				weapon[weaponIndex]->cliplAmmo = weapon[weaponIndex]->maxClipAmmo;
 			}
 			else
 			{
-				weapon->cliplAmmo += _ammoAmount;
+				weapon[weaponIndex]->cliplAmmo += _ammoAmount;
 				_ammoAmount = 0;
 			}
 		}
@@ -312,6 +312,54 @@ void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AWaves_InvadersCharacter::SwitchToNextWeapon()
+{
+	switch(weaponIndex)
+	{
+	case 0:
+		if (weapon.Num() > 1)
+		{
+			weaponIndex = 1;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		else
+		{
+			weaponIndex = 0;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		break;
+
+	case 1:
+		if (weapon.Num() > 2)
+		{
+			weaponIndex = 2;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		else
+		{
+			weaponIndex = 0;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		break;
+
+	case 2:
+		if (weapon.Num() > 3)
+		{
+			weaponIndex = 3;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		else
+		{
+			weaponIndex = 0;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		break;
+
+	default:
+		break;
+	}
 }
 
 void AWaves_InvadersCharacter::AddAmmo(EAmmoType _ammoType, int _ammoAmount)

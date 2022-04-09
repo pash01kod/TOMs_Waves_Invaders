@@ -22,12 +22,13 @@ class AWaves_InvadersCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	USkeletalMeshComponent* Mesh1P;
 
 	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(BlueprintReadWrite, Category = Mesh)
 	USkeletalMeshComponent* FP_Gun;
 
 	/** Location on gun mesh where projectiles should spawn. */
@@ -66,7 +67,7 @@ public:
 	FVector GunOffset;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	UPROPERTY(BlueprintReadWrite, Category=Projectile)
 	TSubclassOf<class AWaves_InvadersProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
@@ -91,7 +92,10 @@ public:
 	int bigGunAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-	AWeaponSysten* weapon;
+	int weaponIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	TArray<AWeaponSysten*> weapon;
 
 protected:
 	
@@ -118,11 +122,16 @@ protected:
 
 	void LookUpAtRate(float Rate);
 
+	void SwitchToNextWeapon();
+
 	UFUNCTION(BlueprintCallable)
 	void AddAmmo(EAmmoType _ammoType, int _ammoAmount);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
 	void TriggerOutOFAmmoPopUp();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void SwitchWeaponMesh(int _index);
 
 	struct TouchData
 	{
