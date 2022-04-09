@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EWeaponType weaponType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	float fireRate;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

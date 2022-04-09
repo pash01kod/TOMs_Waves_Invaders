@@ -14,6 +14,7 @@ AWeaponSysten::AWeaponSysten()
 	totalAmmo = 64;
 	cliplAmmo = 12;
 	reloadTime = 1.0f;
+	fireRate = 1.0f;
 
 	weaponType = EWeaponType::E_Rifle;
 }

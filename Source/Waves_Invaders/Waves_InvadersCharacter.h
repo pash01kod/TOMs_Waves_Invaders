@@ -82,6 +82,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
+	bool isShooting;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int rifleAmmo;
 
@@ -94,6 +97,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int weaponIndex;
 
+	FTimerHandle fireTimeHandle;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	TArray<AWeaponSysten*> weapon;
 
@@ -101,6 +106,10 @@ protected:
 	
 	/** Fires a projectile. */
 	void OnFire();
+
+	void StartFiring();
+
+	void StopFiring();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);

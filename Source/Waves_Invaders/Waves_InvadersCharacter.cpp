@@ -57,6 +57,7 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	 /*Default offset from the character location for projectiles to spawn*/
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 	
+	isShooting = false;
 
 	rifleAmmo = 30;
 	ppAmmo = 12;
@@ -87,7 +88,10 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::OnFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::StartFiring);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AWaves_InvadersCharacter::StopFiring);
+
+	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ManualReload);
 	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::SwitchToNextWeapon);
 	// Enable touchscreen input
@@ -110,56 +114,73 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 void AWaves_InvadersCharacter::OnFire()
 {
-	// try and fire a projectile
-	if (ProjectileClass != nullptr)
+	if(isShooting)
 	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
+		// try and fire a projectile
+		if (ProjectileClass != nullptr)
 		{
-			if(weapon[weaponIndex])
+			UWorld* const World = GetWorld();
+			if (World != nullptr)
 			{
-				if(weapon[weaponIndex]->cliplAmmo > 0)
+				if(weapon.IsValidIndex(weaponIndex))
 				{
-					if (bUsingMotionControllers)
+					if(weapon[weaponIndex]->cliplAmmo > 0)
 					{
-				
-					}
-					else
-					{
-						const FRotator SpawnRotation = GetControlRotation();
-						const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-						FActorSpawnParameters ActorSpawnParams;
-						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-						World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-					}
+						if (bUsingMotionControllers)
+						{
+							
+						}
+						else
+						{
+							const FRotator SpawnRotation = GetControlRotation();
+							const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+							FActorSpawnParameters ActorSpawnParams;
+							ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+							World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+						}
 
-					weapon[weaponIndex]->cliplAmmo -= 1;
-				}
-				else  
-				{
-					ReloadWeapon(weapon[weaponIndex]->weaponType);
+						World->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, false);
+						weapon[weaponIndex]->cliplAmmo -= 1;
+					}
+					else  
+					{
+						ReloadWeapon(weapon[weaponIndex]->weaponType);
+					}
 				}
 			}
 		}
-	}
 
-	// try and play the sound if specified
-	if (FireSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != nullptr)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != nullptr)
+		// try and play the sound if specified
+		if (FireSound != nullptr)
 		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		}
+
+		// try and play a firing animation if specified
+		if (FireAnimation != nullptr)
+		{
+			// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+			if (AnimInstance != nullptr)
+			{
+				AnimInstance->Montage_Play(FireAnimation, 1.f);
+			}
 		}
 	}
 }
+
+void AWaves_InvadersCharacter::StartFiring()
+{
+	isShooting = true;
+	OnFire();
+}
+
+void AWaves_InvadersCharacter::StopFiring()
+{
+	isShooting = false;
+	fireTimeHandle.Invalidate();
+}
+
 
 //void AWaves_InvadersCharacter::OnResetVR()
 //{
