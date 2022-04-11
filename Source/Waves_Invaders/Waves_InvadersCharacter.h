@@ -82,6 +82,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	bool isReloading;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
 	bool isShooting;
 

@@ -58,6 +58,7 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 	
 	isShooting = false;
+	isReloading = false;
 
 	rifleAmmo = 30;
 	ppAmmo = 12;
@@ -153,17 +154,23 @@ void AWaves_InvadersCharacter::OnFire()
 		// try and play the sound if specified
 		if (FireSound != nullptr)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+			if(weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+			}
 		}
 
 		// try and play a firing animation if specified
 		if (FireAnimation != nullptr)
 		{
-			// Get the animation object for the arms mesh
-			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-			if (AnimInstance != nullptr)
+			if (weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
 			{
-				AnimInstance->Montage_Play(FireAnimation, 1.f);
+				// Get the animation object for the arms mesh
+				UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+				if (AnimInstance != nullptr)
+				{
+					AnimInstance->Montage_Play(FireAnimation, 1.f);
+				}
 			}
 		}
 	}
@@ -276,6 +283,7 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 
 void AWaves_InvadersCharacter::ManualReload()
 {
+	isReloading = true;
 	ReloadWeapon(weapon[weaponIndex]->weaponType);
 }
 
