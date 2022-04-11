@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "WeaponSysten.h"
+#include "Ammo.h"
 #include "Waves_InvadersCharacter.generated.h"
 
 
@@ -21,12 +22,13 @@ class AWaves_InvadersCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
+	UPROPERTY(BlueprintReadWrite, Category=Mesh)
 	USkeletalMeshComponent* Mesh1P;
 
 	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(BlueprintReadWrite, Category = Mesh)
 	USkeletalMeshComponent* FP_Gun;
 
 	/** Location on gun mesh where projectiles should spawn. */
@@ -65,7 +67,7 @@ public:
 	FVector GunOffset;
 
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category=Projectile)
+	UPROPERTY(BlueprintReadWrite, Category=Projectile)
 	TSubclassOf<class AWaves_InvadersProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
@@ -80,13 +82,34 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
+	bool isShooting;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-	AWeaponSysten* weapon;
+	int rifleAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	int ppAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	int bigGunAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	int weaponIndex;
+
+	FTimerHandle fireTimeHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	TArray<AWeaponSysten*> weapon;
 
 protected:
 	
 	/** Fires a projectile. */
 	void OnFire();
+
+	void StartFiring();
+
+	void StopFiring();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -100,12 +123,24 @@ protected:
 	 */
 	void TurnAtRate(float Rate);
 
-	void ReloadWepon();
+	void ManualReload();
+
+	void ReloadWeapon(EWeaponType _weaponType);
+
+	int CalculateAmmo(int _ammoAmount);
 
 	void LookUpAtRate(float Rate);
 
+	void SwitchToNextWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void AddAmmo(EAmmoType _ammoType, int _ammoAmount);
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
 	void TriggerOutOFAmmoPopUp();
+
+	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent, Category = "Weapon")
+	void SwitchWeaponMesh(int _index);
 
 	struct TouchData
 	{

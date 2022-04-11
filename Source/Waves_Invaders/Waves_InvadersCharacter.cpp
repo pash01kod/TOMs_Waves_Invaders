@@ -56,8 +56,13 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 
 	 /*Default offset from the character location for projectiles to spawn*/
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
-	weapon = nullptr;
 	
+	isShooting = false;
+
+	rifleAmmo = 30;
+	ppAmmo = 12;
+	bigGunAmmo = 3;
+	weaponIndex = 0;
 }
 
 void AWaves_InvadersCharacter::BeginPlay()
@@ -83,9 +88,12 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::OnFire);
-	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ReloadWepon);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AWaves_InvadersCharacter::StartFiring);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AWaves_InvadersCharacter::StopFiring);
 
+	
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ManualReload);
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::SwitchToNextWeapon);
 	// Enable touchscreen input
 	/*EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -106,51 +114,73 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 void AWaves_InvadersCharacter::OnFire()
 {
-	// try and fire a projectile
-	if (ProjectileClass != nullptr)
+	if(isShooting)
 	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
+		// try and fire a projectile
+		if (ProjectileClass != nullptr)
 		{
-			if (bUsingMotionControllers)
+			UWorld* const World = GetWorld();
+			if (World != nullptr)
 			{
-				/*const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();*/
-				/*const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();*/
-				/*World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);*/
-			}
-			else
-			{
-				const FRotator SpawnRotation = GetControlRotation();
-				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+				if(weapon.IsValidIndex(weaponIndex))
+				{
+					if(weapon[weaponIndex]->cliplAmmo > 0)
+					{
+						if (bUsingMotionControllers)
+						{
+							
+						}
+						else
+						{
+							const FRotator SpawnRotation = GetControlRotation();
+							const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+							FActorSpawnParameters ActorSpawnParams;
+							ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+							World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+						}
 
-				//Set Spawn Collision Handling Override
-				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-				// spawn the projectile at the muzzle
-				World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+						World->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, false);
+						weapon[weaponIndex]->cliplAmmo -= 1;
+					}
+					else  
+					{
+						ReloadWeapon(weapon[weaponIndex]->weaponType);
+					}
+				}
 			}
 		}
-	}
 
-	// try and play the sound if specified
-	if (FireSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation(),0.5);
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != nullptr)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != nullptr)
+		// try and play the sound if specified
+		if (FireSound != nullptr)
 		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		}
+
+		// try and play a firing animation if specified
+		if (FireAnimation != nullptr)
+		{
+			// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+			if (AnimInstance != nullptr)
+			{
+				AnimInstance->Montage_Play(FireAnimation, 1.f);
+			}
 		}
 	}
 }
+
+void AWaves_InvadersCharacter::StartFiring()
+{
+	isShooting = true;
+	OnFire();
+}
+
+void AWaves_InvadersCharacter::StopFiring()
+{
+	isShooting = false;
+	fireTimeHandle.Invalidate();
+}
+
 
 //void AWaves_InvadersCharacter::OnResetVR()
 //{
@@ -244,15 +274,134 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::ReloadWepon()
+void AWaves_InvadersCharacter::ManualReload()
 {
+	ReloadWeapon(weapon[weaponIndex]->weaponType);
+}
 
+void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
+{
+	if (weapon[weaponIndex])
+	{
+		switch (_weaponType)
+		{
+		case EWeaponType::E_Rifle:
+			rifleAmmo = CalculateAmmo(rifleAmmo);
+			break;
+
+		case EWeaponType::E_9MM:
+			ppAmmo = CalculateAmmo(ppAmmo);
+			break;
+
+		case EWeaponType::E_BigGun:
+			bigGunAmmo = CalculateAmmo(bigGunAmmo);
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
+int AWaves_InvadersCharacter::CalculateAmmo(int _ammoAmount)
+{
+	if(_ammoAmount > 0)
+	{
+		if (weapon[weaponIndex]->cliplAmmo != weapon[weaponIndex]->maxClipAmmo)
+		{
+			if (_ammoAmount - (weapon[weaponIndex]->maxClipAmmo - weapon[weaponIndex]->cliplAmmo) >= 0)
+			{
+				_ammoAmount -= (weapon[weaponIndex]->maxClipAmmo - weapon[weaponIndex]->cliplAmmo);
+				weapon[weaponIndex]->cliplAmmo = weapon[weaponIndex]->maxClipAmmo;
+			}
+			else
+			{
+				weapon[weaponIndex]->cliplAmmo += _ammoAmount;
+				_ammoAmount = 0;
+			}
+		}
+	}
+	else
+	{
+		TriggerOutOFAmmoPopUp();
+	}
+
+	return _ammoAmount;
 }
 
 void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AWaves_InvadersCharacter::SwitchToNextWeapon()
+{
+	switch(weaponIndex)
+	{
+	case 0:
+		if (weapon.Num() > 1)
+		{
+			weaponIndex = 1;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		else
+		{
+			weaponIndex = 0;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		break;
+
+	case 1:
+		if (weapon.Num() > 2)
+		{
+			weaponIndex = 2;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		else
+		{
+			weaponIndex = 0;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		break;
+
+	case 2:
+		if (weapon.Num() > 3)
+		{
+			weaponIndex = 3;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		else
+		{
+			weaponIndex = 0;
+			SwitchWeaponMesh(weaponIndex);
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void AWaves_InvadersCharacter::AddAmmo(EAmmoType _ammoType, int _ammoAmount)
+{
+	switch (_ammoType)
+	{
+	case EAmmoType::E_Rifle:
+		rifleAmmo += _ammoAmount;
+		break;
+	
+	case EAmmoType::E_9MM:
+		ppAmmo += _ammoAmount;
+		break;
+
+	case EAmmoType::E_BigGun:
+		bigGunAmmo += _ammoAmount;
+		break;
+
+	default:
+		break;
+	}
 }
 
 
