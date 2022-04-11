@@ -9,6 +9,7 @@ AEnemy::AEnemy()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	EnemyTexture = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Archer"));
+	Health = 1.0f;
 	//static ConstructorHelpers::FObjectFinder<USkeletalMesh> CubeVisualAsset(TEXT("/Game/CityofBrass_Enemies/Meshes/Enemy/Archer/Corpse_Skeleton.Corpse_Skeleton"));
 
 
@@ -24,6 +25,11 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AEnemy::TakeDamage(float _damage)
+{
+	Health -= _damage;
 }
 
 
