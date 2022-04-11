@@ -25,6 +25,14 @@ void AAmmo::BeginPlay()
 void AAmmo::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	FVector NewLocation = GetActorLocation();
+	FRotator NewRotation = GetActorRotation();
+	float RunningTime = GetGameTimeSinceCreation();
+	float DeltaHeight = (FMath::Sin(RunningTime + DeltaTime) - FMath::Sin(RunningTime));
+	NewLocation.Z += DeltaHeight * 30.0f;       //Scale our height by a factor of 40
+	float DeltaRotation = DeltaTime * 60.0f;    //Rotate by 40 degrees per second
+	NewRotation.Yaw += DeltaRotation;
+	SetActorLocationAndRotation(NewLocation, NewRotation);
 
 }
 

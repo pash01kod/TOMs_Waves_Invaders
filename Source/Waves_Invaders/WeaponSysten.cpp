@@ -29,7 +29,7 @@ void AWeaponSysten::BeginPlay()
 // Called every frame
 void AWeaponSysten::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	
 
 }
 
