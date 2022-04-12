@@ -60,6 +60,8 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	isShooting = false;
 	isReloading = false;
 
+	health = 1.0f;
+
 	rifleAmmo = 30;
 	ppAmmo = 12;
 	bigGunAmmo = 3;
@@ -388,6 +390,16 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon()
 
 	default:
 		break;
+	}
+}
+
+void AWaves_InvadersCharacter::TakeDamage(float _damageAmount)
+{
+	health -= _damageAmount;
+
+	if (health < 0.0f) 
+	{
+		health = 0.0f;
 	}
 }
 
