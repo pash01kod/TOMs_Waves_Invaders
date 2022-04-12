@@ -403,6 +403,16 @@ void AWaves_InvadersCharacter::TakeDamage(float _damageAmount)
 	}
 }
 
+void AWaves_InvadersCharacter::Heal(float _healAmount)
+{
+	health += _healAmount;
+
+	if (health > 1.0f)
+	{
+		health = 1.0f;
+	}
+}
+
 void AWaves_InvadersCharacter::AddAmmo(EAmmoType _ammoType, int _ammoAmount)
 {
 	switch (_ammoType)

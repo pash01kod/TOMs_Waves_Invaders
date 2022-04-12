@@ -143,6 +143,9 @@ protected:
 	void TakeDamage(float _damageAmount);
 
 	UFUNCTION(BlueprintCallable)
+	void Heal(float _healAmount);
+
+	UFUNCTION(BlueprintCallable)
 	void AddAmmo(EAmmoType _ammoType, int _ammoAmount);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
