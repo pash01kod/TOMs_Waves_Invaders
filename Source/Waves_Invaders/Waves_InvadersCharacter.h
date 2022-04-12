@@ -97,6 +97,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int bigGunAmmo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+	float health;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int weaponIndex;
 
@@ -135,6 +138,12 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	void SwitchToNextWeapon();
+
+	UFUNCTION(BlueprintCallable)
+	void TakeDamage(float _damageAmount);
+
+	UFUNCTION(BlueprintCallable)
+	void Heal(float _healAmount);
 
 	UFUNCTION(BlueprintCallable)
 	void AddAmmo(EAmmoType _ammoType, int _ammoAmount);
