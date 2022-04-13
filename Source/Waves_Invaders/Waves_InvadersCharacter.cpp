@@ -62,6 +62,8 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 
 	health = 1.0f;
 
+	respawnLocation = FVector(3146.18f, -827.61, 573.8);
+
 	rifleAmmo = 30;
 	ppAmmo = 12;
 	bigGunAmmo = 3;
@@ -393,13 +395,25 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon()
 	}
 }
 
+void AWaves_InvadersCharacter::Die()
+{
+	Respawn();
+}
+
+void AWaves_InvadersCharacter::Respawn()
+{
+	health = 1.0f;
+	SetActorLocation(respawnLocation);
+}
+
 void AWaves_InvadersCharacter::TakeDamage(float _damageAmount)
 {
 	health -= _damageAmount;
 
-	if (health < 0.0f) 
+	if (health <= 0.0f) 
 	{
 		health = 0.0f;
+		Die();
 	}
 }
 
