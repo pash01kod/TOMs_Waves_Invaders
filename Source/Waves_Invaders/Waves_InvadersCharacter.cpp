@@ -349,7 +349,26 @@ void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 
 void AWaves_InvadersCharacter::SwitchToNextWeapon()
 {
-	switch(weaponIndex)
+	bool success = false;
+	for (int i = 0; i < weapon.Num(); ++i)
+	{
+		if (i > weaponIndex)
+		{
+			if (weapon[i]->isObtained)
+			{
+				success = true;
+				weaponIndex = i;
+				SwitchWeaponMesh(weapon[i]->index);
+				break;
+			}
+		}
+	}
+	if (!success)
+	{
+		weaponIndex = 0;
+		SwitchWeaponMesh(weaponIndex);
+	}
+	/*switch(weaponIndex)
 	{
 	case 0:
 		if (weapon.Num() > 1)
@@ -392,7 +411,7 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon()
 
 	default:
 		break;
-	}
+	}*/
 }
 
 void AWaves_InvadersCharacter::Die()

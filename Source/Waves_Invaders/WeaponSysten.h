@@ -24,6 +24,12 @@ public:
 	AWeaponSysten();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	bool isObtained;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	int index;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	int maxTotalAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -43,6 +49,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	float fireRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FString name;
+
 
 protected:
 	// Called when the game starts or when spawned

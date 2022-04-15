@@ -140,6 +140,7 @@ protected:
 
 	void LookUpAtRate(float Rate);
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void SwitchToNextWeapon();
 
 	UFUNCTION(BlueprintCallable)
