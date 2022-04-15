@@ -59,6 +59,7 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	
 	isShooting = false;
 	isReloading = false;
+	
 
 	health = 1.0f;
 
