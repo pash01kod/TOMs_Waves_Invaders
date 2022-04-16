@@ -120,7 +120,7 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 void AWaves_InvadersCharacter::OnFire()
 {
-	if(isReloading)
+	if(!isReloading)
 	{ 
 		if(isShooting)
 		{
@@ -129,6 +129,7 @@ void AWaves_InvadersCharacter::OnFire()
 				if(weapon[weaponIndex]->cliplAmmo > 0)
 				{
 					weapon[weaponIndex]->Fire();
+
 					if (weapon[weaponIndex]->weaponMode == EWeaponMode::E_Auto)
 					{
 						GetWorld()->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, true);
@@ -341,6 +342,7 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon(int _forceSwitchIndex)
 	else
 	{ 
 		bool success = false;
+
 		for (int i = 0; i < weapon.Num(); ++i)
 		{
 			if (i > weaponIndex)
@@ -354,10 +356,11 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon(int _forceSwitchIndex)
 				}
 			}
 		}
+
 		if (!success)
 		{
 			weaponIndex = 0;
-			/*SwitchWeapon(weaponIndex);*/
+			SwitchWeapon(weapon[weaponIndex]->weaponType);
 		}
 	}
 	/*switch(weaponIndex)
