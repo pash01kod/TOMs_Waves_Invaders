@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "WeaponSysten.h"
-#include "Ammo.h"
+#include "Bullet.h"
 #include "Waves_InvadersCharacter.generated.h"
 
 

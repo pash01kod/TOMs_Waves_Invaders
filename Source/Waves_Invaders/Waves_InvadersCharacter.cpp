@@ -48,14 +48,14 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	FP_Gun->CastShadow = false;
 	FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
 	FP_Gun->SetupAttachment(RootComponent);
-	/*FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint_2"));
-	FP_Gun->SetupAttachment(RootComponent);*/
-	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
+	///*FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint_2"));
+	//FP_Gun->SetupAttachment(RootComponent);*/
+	//FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
+	//FP_MuzzleLocation->SetupAttachment(FP_Gun);
+	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
 
 	 /*Default offset from the character location for projectiles to spawn*/
-	GunOffset = FVector(100.0f, 0.0f, 10.0f);
+	
 	
 	isShooting = false;
 	isReloading = false;
@@ -132,19 +132,10 @@ void AWaves_InvadersCharacter::OnFire()
 				{
 					if(weapon[weaponIndex]->cliplAmmo > 0)
 					{
-						if (bUsingMotionControllers)
-						{
-							
-						}
-						else
-						{
-							const FRotator SpawnRotation = GetControlRotation();
-							const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-							FActorSpawnParameters ActorSpawnParams;
-							ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-							World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-						}
-
+						const FRotator SpawnRotation = GetControlRotation();
+						FActorSpawnParameters ActorSpawnParams;
+						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+						weapon[weaponIndex]->FireWeapon();
 						World->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, false);
 						weapon[weaponIndex]->cliplAmmo -= 1;
 					}

@@ -23,6 +23,9 @@ public:
 	// Sets default values for this actor's properties
 	AWeaponSysten();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon")
+	void FireWeapon();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	bool isObtained;
 
