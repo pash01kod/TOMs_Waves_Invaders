@@ -14,6 +14,14 @@ enum class EWeaponType : uint8
 	E_BigGun	UMETA(DisplayName = "BIGGUN")
 };
 
+UENUM(BlueprintType)
+enum class EWeaponMode : uint8
+{
+	E_Single		UMETA(DisplayName = "SINGLE_FIRE"),
+	E_Burst			UMETA(DisplayName = "BURST_FIRE"),
+	E_Auto			UMETA(DisplayName = "AUTO_FIRE")
+};
+
 UCLASS()
 class WAVES_INVADERS_API AWeaponSysten : public AActor
 {
@@ -22,6 +30,9 @@ class WAVES_INVADERS_API AWeaponSysten : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AWeaponSysten();
+
+	UFUNCTION(BlueprintCallable)
+	void Fire();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon")
 	void FireWeapon();
@@ -55,6 +66,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FString name;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponMode weaponMode;
 
 
 protected:

@@ -27,13 +27,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category=Mesh)
 	USkeletalMeshComponent* Mesh1P;
 
-	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(BlueprintReadWrite, Category = Mesh)
-	USkeletalMeshComponent* FP_Gun;
+	///** Gun mesh: 1st person view (seen only by self) */
+	//UPROPERTY(BlueprintReadWrite, Category = Mesh)
+	//USkeletalMeshComponent* FP_Gun;
 
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	USceneComponent* FP_MuzzleLocation;
+	///** Location on gun mesh where projectiles should spawn. */
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//USceneComponent* FP_MuzzleLocation;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -141,7 +141,10 @@ protected:
 	void LookUpAtRate(float Rate);
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void SwitchToNextWeapon();
+	void SwitchToNextWeapon(int _forceSwitchIndex = -1);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void TriggerWeaponSwitch();
 
 	UFUNCTION(BlueprintCallable)
 	void Die();
@@ -163,6 +166,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent, Category = "Weapon")
 	void SwitchWeaponMesh(int _index);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Weapon")
+	void SwitchWeapon(EWeaponType _weaponType);
+
 
 	struct TouchData
 	{

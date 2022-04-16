@@ -42,12 +42,12 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
 
 	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->SetOnlyOwnerSee(false);			// otherwise won't be visible in the multiplayer
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = false;
-	FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	FP_Gun->SetupAttachment(RootComponent);
+	//FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	//FP_Gun->SetOnlyOwnerSee(false);			// otherwise won't be visible in the multiplayer
+	//FP_Gun->bCastDynamicShadow = false;
+	//FP_Gun->CastShadow = false;
+	//FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
+	//FP_Gun->SetupAttachment(RootComponent);
 	///*FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint_2"));
 	//FP_Gun->SetupAttachment(RootComponent);*/
 	//FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
@@ -77,7 +77,7 @@ void AWaves_InvadersCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	/*FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));*/
 	
 }
 
@@ -99,7 +99,7 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ManualReload);
-	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::SwitchToNextWeapon);
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::TriggerWeaponSwitch);
 	// Enable touchscreen input
 	/*EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -120,52 +120,41 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 void AWaves_InvadersCharacter::OnFire()
 {
-	if(isShooting)
-	{
-		// try and fire a projectile
-		if (ProjectileClass != nullptr)
+	if(isReloading)
+	{ 
+		if(isShooting)
 		{
-			UWorld* const World = GetWorld();
-			if (World != nullptr)
+			if (weapon.IsValidIndex(weaponIndex))
 			{
-				if(weapon.IsValidIndex(weaponIndex))
+				if(weapon[weaponIndex]->cliplAmmo > 0)
 				{
-					if(weapon[weaponIndex]->cliplAmmo > 0)
+					weapon[weaponIndex]->Fire();
+					if (weapon[weaponIndex]->weaponMode == EWeaponMode::E_Auto)
 					{
-						const FRotator SpawnRotation = GetControlRotation();
-						FActorSpawnParameters ActorSpawnParams;
-						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-						weapon[weaponIndex]->FireWeapon();
-						World->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, false);
-						weapon[weaponIndex]->cliplAmmo -= 1;
+						GetWorld()->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, true);
 					}
-					else  
+
+					if (FireSound != nullptr)
 					{
-						ReloadWeapon(weapon[weaponIndex]->weaponType);
+						UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+					}
+
+					if (FireAnimation != nullptr)
+					{
+						if (weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
+						{
+							// Get the animation object for the arms mesh
+							UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+							if (AnimInstance != nullptr)
+							{
+								AnimInstance->Montage_Play(FireAnimation, 1.f);
+							}
+						}
 					}
 				}
-			}
-		}
-
-		// try and play the sound if specified
-		if (FireSound != nullptr)
-		{
-			if(weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
-			{
-				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-			}
-		}
-
-		// try and play a firing animation if specified
-		if (FireAnimation != nullptr)
-		{
-			if (weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
-			{
-				// Get the animation object for the arms mesh
-				UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-				if (AnimInstance != nullptr)
+				else  
 				{
-					AnimInstance->Montage_Play(FireAnimation, 1.f);
+					ReloadWeapon(weapon[weaponIndex]->weaponType);
 				}
 			}
 		}
@@ -181,7 +170,7 @@ void AWaves_InvadersCharacter::StartFiring()
 void AWaves_InvadersCharacter::StopFiring()
 {
 	isShooting = false;
-	fireTimeHandle.Invalidate();
+	/*fireTimeHandle.Invalidate();*/
 }
 
 
@@ -279,7 +268,7 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 
 void AWaves_InvadersCharacter::ManualReload()
 {
-	isReloading = true;
+	/*isReloading = true;*/
 	ReloadWeapon(weapon[weaponIndex]->weaponType);
 }
 
@@ -287,6 +276,8 @@ void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
 {
 	if (weapon[weaponIndex])
 	{
+		isReloading = true;
+		
 		switch (_weaponType)
 		{
 		case EWeaponType::E_Rifle:
@@ -339,26 +330,35 @@ void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::SwitchToNextWeapon()
+void AWaves_InvadersCharacter::SwitchToNextWeapon(int _forceSwitchIndex)
 {
-	bool success = false;
-	for (int i = 0; i < weapon.Num(); ++i)
+	GetWorld()->GetTimerManager().ClearTimer(fireTimeHandle);
+	if (_forceSwitchIndex > -1)
 	{
-		if (i > weaponIndex)
+		weaponIndex = _forceSwitchIndex;
+		SwitchWeapon(weapon[weaponIndex]->weaponType);
+	}
+	else
+	{ 
+		bool success = false;
+		for (int i = 0; i < weapon.Num(); ++i)
 		{
-			if (weapon[i]->isObtained)
+			if (i > weaponIndex)
 			{
-				success = true;
-				weaponIndex = i;
-				SwitchWeaponMesh(weapon[i]->index);
-				break;
+				if (weapon[i]->isObtained)
+				{
+					success = true;
+					weaponIndex = i;
+					SwitchWeapon(weapon[weaponIndex]->weaponType);
+					break;
+				}
 			}
 		}
-	}
-	if (!success)
-	{
-		weaponIndex = 0;
-		SwitchWeaponMesh(weaponIndex);
+		if (!success)
+		{
+			weaponIndex = 0;
+			/*SwitchWeapon(weaponIndex);*/
+		}
 	}
 	/*switch(weaponIndex)
 	{
@@ -404,6 +404,11 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon()
 	default:
 		break;
 	}*/
+}
+
+void AWaves_InvadersCharacter::TriggerWeaponSwitch()
+{
+	SwitchToNextWeapon();
 }
 
 void AWaves_InvadersCharacter::Die()
