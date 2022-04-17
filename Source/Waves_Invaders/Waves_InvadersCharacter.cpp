@@ -142,7 +142,7 @@ void AWaves_InvadersCharacter::OnFire()
 
 					if (FireAnimation != nullptr)
 					{
-						if (weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
+						if (weapon[weaponIndex]->cliplAmmo > 0 )
 						{
 							// Get the animation object for the arms mesh
 							UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
@@ -155,7 +155,9 @@ void AWaves_InvadersCharacter::OnFire()
 				}
 				else  
 				{
-					ReloadWeapon(weapon[weaponIndex]->weaponType);
+					
+						ReloadWeapon(weapon[weaponIndex]->weaponType);
+					
 				}
 			}
 		}
@@ -270,7 +272,11 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 void AWaves_InvadersCharacter::ManualReload()
 {
 	/*isReloading = true;*/
-	ReloadWeapon(weapon[weaponIndex]->weaponType);
+	if (weapon[weaponIndex]->totalAmmo > 0)
+	{
+		ReloadWeapon(weapon[weaponIndex]->weaponType);
+	}
+	
 }
 
 void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
@@ -284,6 +290,7 @@ void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
 		case EWeaponType::E_Rifle:
 			rifleAmmo = CalculateAmmo(rifleAmmo);
 			break;
+			
 
 		case EWeaponType::E_9MM:
 			ppAmmo = CalculateAmmo(ppAmmo);
