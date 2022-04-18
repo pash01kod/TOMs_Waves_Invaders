@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Bullet.h"
 #include "Ammo.generated.h"
 
-
-
+UENUM(BlueprintType)
+enum class EAmmoType : uint8 
+{
+	E_Rifle		UMETA(DisplayName = "5.56MM"),
+	E_9MM		UMETA(DisplayName= "9MM"),
+	E_BigGun	UMETA(DisplayName = "BIGGUN")
+};
 
 
 UCLASS()
