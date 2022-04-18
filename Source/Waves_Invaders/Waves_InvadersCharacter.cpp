@@ -58,11 +58,6 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 	
 	isShooting = false;
-	isReloading = false;
-
-	health = 1.0f;
-
-	respawnLocation = FVector(3146.18f, -827.61, 573.8);
 
 	rifleAmmo = 30;
 	ppAmmo = 12;
@@ -158,23 +153,17 @@ void AWaves_InvadersCharacter::OnFire()
 		// try and play the sound if specified
 		if (FireSound != nullptr)
 		{
-			if(weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
-			{
-				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-			}
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation(),0.1f);
 		}
 
 		// try and play a firing animation if specified
 		if (FireAnimation != nullptr)
 		{
-			if (weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
+			// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+			if (AnimInstance != nullptr)
 			{
-				// Get the animation object for the arms mesh
-				UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-				if (AnimInstance != nullptr)
-				{
-					AnimInstance->Montage_Play(FireAnimation, 1.f);
-				}
+				AnimInstance->Montage_Play(FireAnimation, 1.f);
 			}
 		}
 	}
@@ -287,7 +276,6 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 
 void AWaves_InvadersCharacter::ManualReload()
 {
-	isReloading = true;
 	ReloadWeapon(weapon[weaponIndex]->weaponType);
 }
 
@@ -392,38 +380,6 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon()
 
 	default:
 		break;
-	}
-}
-
-void AWaves_InvadersCharacter::Die()
-{
-	Respawn();
-}
-
-void AWaves_InvadersCharacter::Respawn()
-{
-	health = 1.0f;
-	SetActorLocation(respawnLocation);
-}
-
-void AWaves_InvadersCharacter::TakeDamage(float _damageAmount)
-{
-	health -= _damageAmount;
-
-	if (health <= 0.0f) 
-	{
-		health = 0.0f;
-		Die();
-	}
-}
-
-void AWaves_InvadersCharacter::Heal(float _healAmount)
-{
-	health += _healAmount;
-
-	if (health > 1.0f)
-	{
-		health = 1.0f;
 	}
 }
 
