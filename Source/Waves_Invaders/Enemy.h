@@ -16,6 +16,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") float Health; 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") float Damage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") float Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") bool HasTakenDamage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") bool IsDead;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyMesh") USkeletalMeshComponent *EnemyTexture;
 	// Sets default values for this actor's properties

@@ -10,6 +10,8 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 	EnemyTexture = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Archer"));
 	Health = 1.0f;
+	HasTakenDamage = false;
+	IsDead = false;
 	//static ConstructorHelpers::FObjectFinder<USkeletalMesh> CubeVisualAsset(TEXT("/Game/CityofBrass_Enemies/Meshes/Enemy/Archer/Corpse_Skeleton.Corpse_Skeleton"));
 
 
@@ -30,6 +32,12 @@ void AEnemy::Tick(float DeltaTime)
 void AEnemy::TakeDamage(float _damage)
 {
 	Health -= _damage;
+	
+	if (Health <= 0.0f)
+	{
+		IsDead = true;
+	}
+	else HasTakenDamage = true;
 }
 
 
