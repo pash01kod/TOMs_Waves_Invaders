@@ -42,23 +42,24 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	Mesh1P->SetRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
 
 	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->SetOnlyOwnerSee(false);			// otherwise won't be visible in the multiplayer
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = false;
-	FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	FP_Gun->SetupAttachment(RootComponent);
-	/*FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint_2"));
-	FP_Gun->SetupAttachment(RootComponent);*/
-	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
+	//FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	//FP_Gun->SetOnlyOwnerSee(false);			// otherwise won't be visible in the multiplayer
+	//FP_Gun->bCastDynamicShadow = false;
+	//FP_Gun->CastShadow = false;
+	//FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
+	//FP_Gun->SetupAttachment(RootComponent);
+	///*FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint_2"));
+	//FP_Gun->SetupAttachment(RootComponent);*/
+	//FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
+	//FP_MuzzleLocation->SetupAttachment(FP_Gun);
+	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
 
 	 /*Default offset from the character location for projectiles to spawn*/
-	GunOffset = FVector(100.0f, 0.0f, 10.0f);
+	
 	
 	isShooting = false;
 	isReloading = false;
+	
 
 	health = 1.0f;
 
@@ -76,7 +77,7 @@ void AWaves_InvadersCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	/*FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));*/
 	
 }
 
@@ -98,7 +99,7 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 	
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AWaves_InvadersCharacter::ManualReload);
-	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::SwitchToNextWeapon);
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AWaves_InvadersCharacter::TriggerWeaponSwitch);
 	// Enable touchscreen input
 	/*EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -119,61 +120,44 @@ void AWaves_InvadersCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 void AWaves_InvadersCharacter::OnFire()
 {
-	if(isShooting)
-	{
-		// try and fire a projectile
-		if (ProjectileClass != nullptr)
+	if(!isReloading)
+	{ 
+		if(isShooting)
 		{
-			UWorld* const World = GetWorld();
-			if (World != nullptr)
+			if (weapon.IsValidIndex(weaponIndex))
 			{
-				if(weapon.IsValidIndex(weaponIndex))
+				if(weapon[weaponIndex]->cliplAmmo > 0)
 				{
-					if(weapon[weaponIndex]->cliplAmmo > 0)
-					{
-						if (bUsingMotionControllers)
-						{
-							
-						}
-						else
-						{
-							const FRotator SpawnRotation = GetControlRotation();
-							const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-							FActorSpawnParameters ActorSpawnParams;
-							ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-							World->SpawnActor<AWaves_InvadersProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-						}
+					weapon[weaponIndex]->Fire();
 
-						World->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, false);
-						weapon[weaponIndex]->cliplAmmo -= 1;
-					}
-					else  
+					if (weapon[weaponIndex]->weaponMode == EWeaponMode::E_Auto)
 					{
-						ReloadWeapon(weapon[weaponIndex]->weaponType);
+						GetWorld()->GetTimerManager().SetTimer(fireTimeHandle, this, &AWaves_InvadersCharacter::OnFire, weapon[weaponIndex]->fireRate, true);
+					}
+
+					if (FireSound != nullptr)
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+					}
+
+					if (FireAnimation != nullptr)
+					{
+						if (weapon[weaponIndex]->cliplAmmo > 0 )
+						{
+							// Get the animation object for the arms mesh
+							UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+							if (AnimInstance != nullptr)
+							{
+								AnimInstance->Montage_Play(FireAnimation, 1.f);
+							}
+						}
 					}
 				}
-			}
-		}
-
-		// try and play the sound if specified
-		if (FireSound != nullptr)
-		{
-			if(weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
-			{
-				UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-			}
-		}
-
-		// try and play a firing animation if specified
-		if (FireAnimation != nullptr)
-		{
-			if (weapon[weaponIndex]->cliplAmmo > 0 && weapon[weaponIndex]->totalAmmo > 0)
-			{
-				// Get the animation object for the arms mesh
-				UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-				if (AnimInstance != nullptr)
+				else  
 				{
-					AnimInstance->Montage_Play(FireAnimation, 1.f);
+					
+						ReloadWeapon(weapon[weaponIndex]->weaponType);
+					
 				}
 			}
 		}
@@ -189,7 +173,7 @@ void AWaves_InvadersCharacter::StartFiring()
 void AWaves_InvadersCharacter::StopFiring()
 {
 	isShooting = false;
-	fireTimeHandle.Invalidate();
+	/*fireTimeHandle.Invalidate();*/
 }
 
 
@@ -287,19 +271,26 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 
 void AWaves_InvadersCharacter::ManualReload()
 {
-	isReloading = true;
-	ReloadWeapon(weapon[weaponIndex]->weaponType);
+	/*isReloading = true;*/
+	if (weapon[weaponIndex]->totalAmmo > 0)
+	{
+		ReloadWeapon(weapon[weaponIndex]->weaponType);
+	}
+	
 }
 
 void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
 {
 	if (weapon[weaponIndex])
 	{
+		isReloading = true;
+		
 		switch (_weaponType)
 		{
 		case EWeaponType::E_Rifle:
 			rifleAmmo = CalculateAmmo(rifleAmmo);
 			break;
+			
 
 		case EWeaponType::E_9MM:
 			ppAmmo = CalculateAmmo(ppAmmo);
@@ -347,9 +338,39 @@ void AWaves_InvadersCharacter::LookUpAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AWaves_InvadersCharacter::SwitchToNextWeapon()
+void AWaves_InvadersCharacter::SwitchToNextWeapon(int _forceSwitchIndex)
 {
-	switch(weaponIndex)
+	GetWorld()->GetTimerManager().ClearTimer(fireTimeHandle);
+	if (_forceSwitchIndex > -1)
+	{
+		weaponIndex = _forceSwitchIndex;
+		SwitchWeapon(weapon[weaponIndex]->weaponType);
+	}
+	else
+	{ 
+		bool success = false;
+
+		for (int i = 0; i < weapon.Num(); ++i)
+		{
+			if (i > weaponIndex)
+			{
+				if (weapon[i]->isObtained)
+				{
+					success = true;
+					weaponIndex = i;
+					SwitchWeapon(weapon[weaponIndex]->weaponType);
+					break;
+				}
+			}
+		}
+
+		if (!success)
+		{
+			weaponIndex = 0;
+			SwitchWeapon(weapon[weaponIndex]->weaponType);
+		}
+	}
+	/*switch(weaponIndex)
 	{
 	case 0:
 		if (weapon.Num() > 1)
@@ -392,7 +413,12 @@ void AWaves_InvadersCharacter::SwitchToNextWeapon()
 
 	default:
 		break;
-	}
+	}*/
+}
+
+void AWaves_InvadersCharacter::TriggerWeaponSwitch()
+{
+	SwitchToNextWeapon();
 }
 
 void AWaves_InvadersCharacter::Die()
