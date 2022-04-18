@@ -17,28 +17,6 @@ AWeaponSysten::AWeaponSysten()
 	fireRate = 1.0f;
 
 	weaponType = EWeaponType::E_Rifle;
-	weaponMode = EWeaponMode::E_Single;
-}
-
-void AWeaponSysten::Fire()
-{
-	switch (weaponMode)
-	{
-	case EWeaponMode::E_Single:
-		FireWeapon();
-		cliplAmmo -= 1;
-		break;
-
-	case EWeaponMode::E_Burst:
-		FireWeapon();
-		cliplAmmo -= 3;
-		break;
-
-	case EWeaponMode::E_Auto:
-		FireWeapon();
-		cliplAmmo -= 1;
-		break;
-	}
 }
 
 // Called when the game starts or when spawned
