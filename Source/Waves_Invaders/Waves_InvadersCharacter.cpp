@@ -58,15 +58,13 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	
 	
 	isShooting = false;
-<<<<<<< HEAD
-=======
+
 	isReloading = false;
 	
 
 	health = 1.0f;
 
 	respawnLocation = FVector(3146.18f, -827.61, 573.8);
->>>>>>> parent of 6e895f7 (Revert "Merge branch 'WeaponSystem'")
 
 	rifleAmmo = 30;
 	ppAmmo = 12;
@@ -156,7 +154,6 @@ void AWaves_InvadersCharacter::OnFire()
 						}
 					}
 				}
-<<<<<<< HEAD
 			}
 		}
 
@@ -174,18 +171,17 @@ void AWaves_InvadersCharacter::OnFire()
 			if (AnimInstance != nullptr)
 			{
 				AnimInstance->Montage_Play(FireAnimation, 1.f);
-=======
+			}
+
 				else  
 				{
 					
 						ReloadWeapon(weapon[weaponIndex]->weaponType);
 					
 				}
->>>>>>> parent of 6e895f7 (Revert "Merge branch 'WeaponSystem'")
 			}
 		}
 	}
-}
 
 void AWaves_InvadersCharacter::StartFiring()
 {
@@ -294,16 +290,13 @@ void AWaves_InvadersCharacter::TurnAtRate(float Rate)
 
 void AWaves_InvadersCharacter::ManualReload()
 {
-<<<<<<< HEAD
 	ReloadWeapon(weapon[weaponIndex]->weaponType);
-=======
 	/*isReloading = true;*/
 	if (weapon[weaponIndex]->totalAmmo > 0)
 	{
 		ReloadWeapon(weapon[weaponIndex]->weaponType);
 	}
 	
->>>>>>> parent of 6e895f7 (Revert "Merge branch 'WeaponSystem'")
 }
 
 void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
