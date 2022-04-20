@@ -18,6 +18,8 @@ AWeaponSysten::AWeaponSysten()
 
 	weaponType = EWeaponType::E_Rifle;
 	weaponMode = EWeaponMode::E_Single;
+
+	
 }
 
 void AWeaponSysten::Fire()
