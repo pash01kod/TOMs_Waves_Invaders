@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "WeaponSysten.h"
-#include "Ammo.h"
+#include "Bullet.h"
 #include "Waves_InvadersCharacter.generated.h"
 
 
@@ -27,13 +27,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category=Mesh)
 	USkeletalMeshComponent* Mesh1P;
 
-	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(BlueprintReadWrite, Category = Mesh)
-	USkeletalMeshComponent* FP_Gun;
+	///** Gun mesh: 1st person view (seen only by self) */
+	//UPROPERTY(BlueprintReadWrite, Category = Mesh)
+	//USkeletalMeshComponent* FP_Gun;
 
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	USceneComponent* FP_MuzzleLocation;
+	///** Location on gun mesh where projectiles should spawn. */
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//USceneComponent* FP_MuzzleLocation;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -140,7 +140,11 @@ protected:
 
 	void LookUpAtRate(float Rate);
 
-	void SwitchToNextWeapon();
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void SwitchToNextWeapon(int _forceSwitchIndex = -1);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void TriggerWeaponSwitch();
 
 	UFUNCTION(BlueprintCallable)
 	void Die();
@@ -162,6 +166,10 @@ protected:
 
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent, Category = "Weapon")
 	void SwitchWeaponMesh(int _index);
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Weapon")
+	void SwitchWeapon(EWeaponType _weaponType);
+
 
 	struct TouchData
 	{
