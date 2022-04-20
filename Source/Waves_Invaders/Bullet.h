@@ -22,6 +22,8 @@ class WAVES_INVADERS_API ABullet : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ABullet();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	float damage;
 
 protected:
 	// Called when the game starts or when spawned
