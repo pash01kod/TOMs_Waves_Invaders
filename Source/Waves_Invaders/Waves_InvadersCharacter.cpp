@@ -199,6 +199,10 @@ void AWaves_InvadersCharacter::UpMoveSpeed(int KillPointsCost, float KoefMsUP)
 			charactermoovment->MaxWalkSpeed = defaultMs * KoefMsUP;
 		}
 	}
+	else
+	{
+		return;
+	}
 }
 
 void AWaves_InvadersCharacter::UpHp(int KillPointsCost, float KoefHpUP)
@@ -211,6 +215,10 @@ void AWaves_InvadersCharacter::UpHp(int KillPointsCost, float KoefHpUP)
 			defaultHp *= KoefHpUP;
 			health = maxHealth;
 		}
+		else
+		{
+			return;
+		}
 	}
 }
 
@@ -222,6 +230,10 @@ void AWaves_InvadersCharacter::JumpUp(int KillPointsCost, float KoefJumpUp)
 		{
 			KillPoints -= KillPointsCost;
 			charactermoovment->JumpZVelocity = defaultJumpPower * KoefJumpUp;
+		}
+		else
+		{
+			return;
 		}
 	}
 }
