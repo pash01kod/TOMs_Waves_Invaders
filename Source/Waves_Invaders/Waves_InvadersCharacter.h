@@ -98,6 +98,9 @@ public:
 	int bigGunAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
+	float maxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Health)
 	float health;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Respawn)
@@ -105,6 +108,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int weaponIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+	int KillPoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+	float defaultMs;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+	float defaultHp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stats)
+	float defaultJumpPower;
 
 	FTimerHandle fireTimeHandle;
 
@@ -169,6 +184,15 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Weapon")
 	void SwitchWeapon(EWeaponType _weaponType);
+
+	UFUNCTION(BlueprintCallable, Category = "UpgradeMenu")
+	void UpMoveSpeed(int KillPointsCost, float KoefMsUP);
+
+	UFUNCTION(BlueprintCallable, Category = "UpgradeMenu")
+	void UpHp(int KillPointsCost, float KoefHpUP);
+
+	UFUNCTION(BlueprintCallable, Category = "UpgradeMenu")
+	void JumpUp(int KillPointsCost, float KoefJumpUP);
 
 
 	struct TouchData
