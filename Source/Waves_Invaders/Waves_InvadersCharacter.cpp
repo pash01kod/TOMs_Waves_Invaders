@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -60,15 +61,21 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	isShooting = false;
 	isReloading = false;
 	
+	
+	//Default stats
+	defaultHp = 100.0f;
+	defaultMs = 600.0f;
+	defaultJumpPower = 420.0f;
 
-	health = 1.0f;
-
+	health = 100.0f;
+	maxHealth = health;
 	respawnLocation = FVector(3146.18f, -827.61, 573.8);
 
 	rifleAmmo = 30;
 	ppAmmo = 12;
 	bigGunAmmo = 3;
 	weaponIndex = 0;
+	KillPoints = 0;
 }
 
 void AWaves_InvadersCharacter::BeginPlay()
@@ -181,6 +188,55 @@ void AWaves_InvadersCharacter::StopFiring()
 //{
 //	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 //}
+
+void AWaves_InvadersCharacter::UpMoveSpeed(int KillPointsCost, float KoefMsUP)
+{
+	if (KillPoints >= KillPointsCost)
+	{
+		if (auto charactermoovment = GetCharacterMovement())
+		{
+			KillPoints -= KillPointsCost;
+			charactermoovment->MaxWalkSpeed = defaultMs * KoefMsUP;
+		}
+	}
+	else
+	{
+		return;
+	}
+}
+
+void AWaves_InvadersCharacter::UpHp(int KillPointsCost, float KoefHpUP)
+{
+	if (KillPoints >= KillPointsCost)
+	{
+		if (health>=0)
+		{
+			KillPoints -= KillPointsCost;
+			defaultHp *= KoefHpUP;
+			health = maxHealth;
+		}
+		else
+		{
+			return;
+		}
+	}
+}
+
+void AWaves_InvadersCharacter::JumpUp(int KillPointsCost, float KoefJumpUp)
+{
+	if (KillPoints >= KillPointsCost)
+	{
+		if (auto charactermoovment = GetCharacterMovement())
+		{
+			KillPoints -= KillPointsCost;
+			charactermoovment->JumpZVelocity = defaultJumpPower * KoefJumpUp;
+		}
+		else
+		{
+			return;
+		}
+	}
+}
 
 void AWaves_InvadersCharacter::BeginTouch(const ETouchIndex::Type FingerIndex, const FVector Location)
 {
@@ -428,7 +484,7 @@ void AWaves_InvadersCharacter::Die()
 
 void AWaves_InvadersCharacter::Respawn()
 {
-	health = 1.0f;
+	health = maxHealth;
 	SetActorLocation(respawnLocation);
 }
 
@@ -447,9 +503,9 @@ void AWaves_InvadersCharacter::Heal(float _healAmount)
 {
 	health += _healAmount;
 
-	if (health > 1.0f)
+	if (health > maxHealth)
 	{
-		health = 1.0f;
+		health = maxHealth;
 	}
 }
 
