@@ -7,6 +7,7 @@
 #include "WeaponSysten.h"
 #include "Bullet.h"
 #include "Waves_InvadersCharacter.generated.h"
+#include "EnemyTemplate.h"
 
 
 class UInputComponent;
