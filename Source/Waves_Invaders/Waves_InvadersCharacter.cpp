@@ -337,24 +337,38 @@ void AWaves_InvadersCharacter::ManualReload()
 
 void AWaves_InvadersCharacter::ReloadWeapon(EWeaponType _weaponType)
 {
-	if (weapon[weaponIndex])
+	if (weapon[weaponIndex] && weapon[weaponIndex]->cliplAmmo != weapon[weaponIndex]->maxClipAmmo)
 	{
-		isReloading = true;
+		
 		
 		switch (_weaponType)
 		{
 		case EWeaponType::E_Rifle:
+			if (rifleAmmo != 0)
+			{
+				isReloading = true;
+			}
 			rifleAmmo = CalculateAmmo(rifleAmmo);
 			break;
 			
 
 		case EWeaponType::E_9MM:
+			if (ppAmmo != 0)
+			{
+				isReloading = true;
+			}
 			ppAmmo = CalculateAmmo(ppAmmo);
 			break;
+			
 
 		case EWeaponType::E_BigGun:
+			if (bigGunAmmo != 0)
+			{
+				isReloading = true;
+			}
 			bigGunAmmo = CalculateAmmo(bigGunAmmo);
 			break;
+			
 
 		default:
 			break;
