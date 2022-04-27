@@ -183,7 +183,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void AddAmmo(EAmmoType _ammoType, int _ammoAmount);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "HUD")
 	void TriggerOutOFAmmoPopUp();
 
 	UFUNCTION(BlueprintCallable,BlueprintImplementableEvent, Category = "Weapon")
