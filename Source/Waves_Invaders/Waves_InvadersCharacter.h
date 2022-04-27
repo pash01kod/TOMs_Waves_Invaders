@@ -89,6 +89,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
 	bool isShooting;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
+	bool HasHomingBulletBuff;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
+	bool FireDmageOverTimeEnable;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int rifleAmmo;
 

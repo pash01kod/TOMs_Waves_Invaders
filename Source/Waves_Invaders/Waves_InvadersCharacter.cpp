@@ -60,7 +60,8 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	
 	isShooting = false;
 	isReloading = false;
-	
+	HasHomingBulletBuff = false;
+	FireDmageOverTimeEnable = false;
 	
 	//Default stats
 	defaultHp = 100.0f;
