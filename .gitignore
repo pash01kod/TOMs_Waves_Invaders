@@ -2,6 +2,7 @@ Binaries/*
 DerivedDataCache/*
 Intermediate/*
 Saved/*
+Content/Weapon_Pack/*
 
 *.bin
 *.vC.db
@@ -15,4 +16,3 @@ Saved/*
 *.vs
 *.sln
 Content/Weapons_Kit_BuiltData.uasset
-Content/Weapon_Pack/Map/Weapons_Kit_BuiltData.uasset
