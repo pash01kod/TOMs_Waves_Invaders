@@ -212,7 +212,7 @@ void AWaves_InvadersCharacter::UpHp(int KillPointsCost, float KoefHpUP)
 		if (health>=0)
 		{
 			KillPoints -= KillPointsCost;
-			defaultHp *= KoefHpUP;
+			maxHealth = defaultHp * KoefHpUP;
 			health = maxHealth;
 		}
 		else
