@@ -500,7 +500,7 @@ void AWaves_InvadersCharacter::TriggerWeaponSwitch()
 
 void AWaves_InvadersCharacter::Die()
 {
-	Respawn();
+	/*Respawn();*/
 }
 
 void AWaves_InvadersCharacter::Respawn()
