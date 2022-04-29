@@ -23,6 +23,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") float Speed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") bool HasTakenDamage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "EnemyStats") bool IsDead;
+
+	
 	
 	UFUNCTION(BlueprintCallable) void TakeDamage(float _damage);
 

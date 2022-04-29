@@ -83,6 +83,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint8 bUsingMotionControllers : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Statistic) 
+	int DeadsEnemyCount;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	bool isReloading;
 
@@ -94,6 +97,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = State)
 	bool FireDmageOverTimeEnable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Waves)
+	bool FirstWave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Waves)
+	bool SecondtWave;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Waves)
+	bool ThirdstWave;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	int rifleAmmo;

@@ -77,6 +77,12 @@ AWaves_InvadersCharacter::AWaves_InvadersCharacter()
 	bigGunAmmo = 3;
 	weaponIndex = 0;
 	KillPoints = 0;
+
+	DeadsEnemyCount = 0;
+
+	FirstWave = false;
+	SecondtWave = false;
+	ThirdstWave = false;
 }
 
 void AWaves_InvadersCharacter::BeginPlay()

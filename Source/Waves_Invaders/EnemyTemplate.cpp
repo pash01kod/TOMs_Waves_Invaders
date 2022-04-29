@@ -13,6 +13,7 @@ AEnemyTemplate::AEnemyTemplate()
 	HasTakenDamage = false;
 	IsDead = false;
 
+	
 }
 
 // Called when the game starts or when spawned
