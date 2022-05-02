@@ -10,3 +10,6 @@ https://drive.google.com/file/d/1VLpeZPlSHgYGaZOAO4gcRCzfyauY7RHO/view?usp=shari
 # Class Diagram
 
 https://drive.google.com/file/d/1t93K7MD_2i2pCicJ2HmPKqfGZy1CSTyx/view?usp=sharing
+
+# Prototype Build
+https://drive.google.com/file/d/1oxif2tavhWjhMPYjLwd0TdlRr8UGE0wm/view?usp=sharing
